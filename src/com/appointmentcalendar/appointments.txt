@@ -1,0 +1,20 @@
+P002|2024-09-19|14:30|15:30|Yoga class
+M003|2024-09-20|11:00|12:00|Dentist appointment
+O004|2024-09-21|18:00|20:00|Movie night with friends
+W005|2024-09-22|13:00|14:00|Client presentation
+P006|2024-09-23|07:30|08:30|Morning jog
+M007|2024-09-24|15:00|16:00|Annual physical checkup
+W008|2024-09-25|10:00|11:30|Project kickoff meeting
+O009|2024-09-26|19:00|21:00|Cooking class
+P010|2024-09-27|16:00|17:00|Guitar lesson
+W011|2024-09-28|08:00|09:00|Weekly report preparation
+M012|2024-09-29|14:00|15:00|Therapy session
+O013|2024-09-30|12:00|13:00|Lunch with old friend
+W014|2024-10-01|11:00|12:00|Department budget review
+P015|2024-10-02|18:30|19:30|Gym workout
+M016|2024-10-03|10:30|11:30|Eye exam
+W017|2024-10-04|15:00|16:00|Team building workshop
+O018|2024-10-05|20:00|22:00|Local theater performance
+P019|2024-10-06|09:00|10:00|Meditation session
+W020|2024-10-07|13:30|14:30|Quarterly performance review
+W009|2024-09-18|13:00|14:00|Presentation
