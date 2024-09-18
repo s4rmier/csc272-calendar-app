@@ -6,6 +6,7 @@ package com.appointmentcalendar;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -60,6 +61,18 @@ public class AppointmentManager {
                 .filter(app -> app.getStartTime().isAfter(now))
                 .min((a1, a2) -> a1.getStartTime().compareTo(a2.getStartTime()))
                 .orElse(null);
+    }
+
+    /**
+     * Returns a new list of all appointments sorted chronologically by start time.
+     * This method does not modify the original list of appointments.
+     *
+     * @return A new ArrayList containing all appointments sorted by start time.
+     */
+    public List<Appointment> getSortedAppointments() {
+        List<Appointment> sortedList = new ArrayList<>(appointments);
+        sortedList.sort(Comparator.comparing(Appointment::getStartTime));
+        return sortedList;
     }
 
     /**

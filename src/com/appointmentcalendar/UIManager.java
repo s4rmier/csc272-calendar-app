@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -149,10 +150,10 @@ public class UIManager {
     }
 
     /**
-     * Displays all appointments in a paginated format.
+     * Displays all appointments in a paginated format, sorted by start time.
      */
     private void viewAllAppointments() {
-        List<Appointment> appointments = appointmentManager.getAllAppointments();
+        List<Appointment> appointments = appointmentManager.getSortedAppointments();
         displayAppointmentsPaginated(appointments, false);
     }
 
@@ -235,7 +236,7 @@ public class UIManager {
     }
 
     /**
-     * Allows the user to view appointments by category.
+     * Allows the user to view appointments by category, sorted by start time.
      */
     private void viewAppointmentsByCategory() {
         clearConsole();
@@ -244,7 +245,7 @@ public class UIManager {
         if (categoryCode == null) return;  // User quit to main menu
 
         String category = CATEGORIES.get(categoryCode);
-        List<Appointment> appointments = appointmentManager.getAllAppointments();
+        List<Appointment> appointments = appointmentManager.getSortedAppointments();
         List<Appointment> filteredAppointments = appointments.stream()
                 .filter(app -> app.getCategory().equalsIgnoreCase(category))
                 .collect(Collectors.toList());
@@ -260,13 +261,14 @@ public class UIManager {
     }
 
     /**
-     * Allows the user to view appointments for a specific day.
+     * Allows the user to view appointments for a specific day, sorted by start time.
      */
     private void viewAppointmentsForDay() {
         clearConsole();
         System.out.println("--- Appointments for a Specific Day ---");
         LocalDateTime date = getDateInput("Enter date");
         List<Appointment> appointments = appointmentManager.getAppointmentsForDay(date);
+        appointments.sort(Comparator.comparing(Appointment::getStartTime));
         displayAppointmentsPaginated(appointments, false);
     }
 
@@ -405,11 +407,12 @@ public class UIManager {
             }
         }
     }
+
     /**
-     * Allows the user to delete an appointment.
+     * Allows the user to delete an appointment from a sorted list of all appointments.
      */
     private void deleteAppointment() {
-        List<Appointment> appointments = appointmentManager.getAllAppointments();
+        List<Appointment> appointments = appointmentManager.getSortedAppointments();
         if (appointments.isEmpty()) {
             System.out.println("There are no appointments to delete.");
             System.out.print("Press Enter to continue...");
