@@ -1,3 +1,7 @@
+/**
+ * Manages the persistence of appointment data to and from a text file.
+ * Handles saving appointments to a file and loading them back into the application.
+ */
 package com.appointmentcalendar;
 
 import java.io.*;
@@ -12,6 +16,9 @@ public class FileManager {
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
+    /**
+     * Saves the list of appointments to a text file.
+     */
     public static void saveAppointments(List<Appointment> appointments) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME))) {
             for (Appointment app : appointments) {
@@ -27,6 +34,10 @@ public class FileManager {
         }
     }
 
+    /**
+     * Loads appointments from the text file.
+     * Returns a list of all loaded appointments.
+     */
     public static List<Appointment> loadAppointments() {
         List<Appointment> appointments = new ArrayList<>();
         File file = new File(FILE_NAME);
@@ -61,6 +72,9 @@ public class FileManager {
         return appointments;
     }
 
+    /**
+     * Determines the category of an appointment based on its code.
+     */
     private static String getCategoryFromCode(String code) {
         switch (code.charAt(0)) {
             case 'W': return "Work";

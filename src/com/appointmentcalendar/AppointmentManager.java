@@ -1,3 +1,7 @@
+/**
+ * Manages the collection of appointments and provides methods for
+ * manipulating and querying appointment data.
+ */
 package com.appointmentcalendar;
 
 import java.time.LocalDateTime;
@@ -11,6 +15,10 @@ public class AppointmentManager {
     private List<Appointment> appointments;
     private Map<String, Integer> categoryCounters;
 
+    /**
+     * Initializes a new AppointmentManager with an empty list of appointments
+     * and initializes category counters.
+     */
     public AppointmentManager() {
         this.appointments = new ArrayList<>();
         this.categoryCounters = new HashMap<>();
@@ -20,20 +28,32 @@ public class AppointmentManager {
         categoryCounters.put("O", 0);
     }
 
+    /**
+     * Adds a new appointment to the collection.
+     */
     public void addAppointment(Appointment appointment) {
         appointments.add(appointment);
     }
 
+    /**
+     * Returns a new list containing all appointments.
+     */
     public List<Appointment> getAllAppointments() {
         return new ArrayList<>(appointments);
     }
 
+    /**
+     * Returns a list of appointments for a specific day.
+     */
     public List<Appointment> getAppointmentsForDay(LocalDateTime date) {
         return appointments.stream()
                 .filter(app -> app.getStartTime().toLocalDate().equals(date.toLocalDate()))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Returns the next upcoming appointment after the current time.
+     */
     public Appointment getNextUpcomingAppointment() {
         LocalDateTime now = LocalDateTime.now();
         return appointments.stream()
@@ -42,15 +62,25 @@ public class AppointmentManager {
                 .orElse(null);
     }
 
+    /**
+     * Deletes an appointment with the given code.
+     * Returns true if an appointment was deleted, false otherwise.
+     */
     public boolean deleteAppointment(String code) {
-        return appointments.removeIf(app -> app.getCode().equals(code));
+        return appointments.removeIf(app -> app.getCode().equalsIgnoreCase(code));
     }
 
+    /**
+     * Sets the list of appointments and resets category counters.
+     */
     public void setAppointments(List<Appointment> appointments) {
         this.appointments = new ArrayList<>(appointments);
         resetCategoryCounters();
     }
 
+    /**
+     * Resets the category counters based on the current appointments.
+     */
     private void resetCategoryCounters() {
         for (String key : categoryCounters.keySet()) {
             categoryCounters.put(key, 0);
@@ -61,6 +91,9 @@ public class AppointmentManager {
         }
     }
 
+    /**
+     * Generates a unique appointment code for a given category.
+     */
     public String generateAppointmentCode(String category) {
         String categoryCode = category.substring(0, 1).toUpperCase();
         int counter = categoryCounters.getOrDefault(categoryCode, 0) + 1;
@@ -75,6 +108,9 @@ public class AppointmentManager {
         return code;
     }
 
+    /**
+     * Checks if a given appointment code is already in use.
+     */
     private boolean isCodeTaken(String code) {
         return appointments.stream().anyMatch(app -> app.getCode().equals(code));
     }

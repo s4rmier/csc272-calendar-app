@@ -21,12 +21,19 @@ public class UIManager {
             "O", "Other"
     );
 
+    /**
+     * Constructs a UIManager with the given AppointmentManager.
+     * @param appointmentManager The AppointmentManager to be used for managing appointments.
+     */
     public UIManager(AppointmentManager appointmentManager) {
         this.appointmentManager = appointmentManager;
         this.scanner = new Scanner(System.in);
         this.dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     }
 
+    /**
+     * Starts the main application loop, displaying the menu and processing user choices.
+     */
     public void start() {
         boolean running = true;
         while (running) {
@@ -59,6 +66,9 @@ public class UIManager {
         scanner.close();
     }
 
+    /**
+     * Displays upcoming appointments for today or the next available day.
+     */
     private void displayUpcomingAppointments() {
         LocalDateTime today = LocalDateTime.now();
         List<Appointment> todaysAppointments = appointmentManager.getAppointmentsForDay(today);
@@ -81,6 +91,11 @@ public class UIManager {
         System.out.println("-----------------------------");
     }
 
+    /**
+     * Formats an appointment for display.
+     * @param app The appointment to format.
+     * @return A formatted string representation of the appointment.
+     */
     private String formatAppointment(Appointment app) {
         return String.format("%s - %s to %s: %s (%s)",
                 app.getCode(),
@@ -90,6 +105,9 @@ public class UIManager {
                 app.getCategory());
     }
 
+    /**
+     * Displays the main menu options.
+     */
     private void displayMainMenu() {
         System.out.println("\n--- Appointment Calendar ---");
         System.out.println("1. View all appointments");
@@ -101,11 +119,20 @@ public class UIManager {
         System.out.print("Enter your choice: ");
     }
 
+    /**
+     * Clears the console screen.
+     */
     public static void clearConsole() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
+    /**
+     * Gets user input as an integer within a specified range.
+     * @param min The minimum valid value.
+     * @param max The maximum valid value.
+     * @return The user's choice as an integer.
+     */
     private int getUserChoice(int min, int max) {
         while (true) {
             try {
@@ -121,11 +148,19 @@ public class UIManager {
         }
     }
 
+    /**
+     * Displays all appointments in a paginated format.
+     */
     private void viewAllAppointments() {
         List<Appointment> appointments = appointmentManager.getAllAppointments();
         displayAppointmentsPaginated(appointments, false);
     }
 
+    /**
+     * Displays appointments in a paginated format with options to navigate, delete, or quit.
+     * @param appointments The list of appointments to display.
+     * @param isDeleteMode Whether the display is in delete mode.
+     */
     private void displayAppointmentsPaginated(List<Appointment> appointments, boolean isDeleteMode) {
         int pageSize = 10;
         int totalPages = (int) Math.ceil((double) appointments.size() / pageSize);
@@ -166,6 +201,12 @@ public class UIManager {
         }
     }
 
+    /**
+     * Displays a single page of appointments.
+     * @param appointments The list of appointments to display.
+     * @param currentPage The current page number.
+     * @param totalPages The total number of pages.
+     */
     private void displayAppointmentsPage(List<Appointment> appointments, int currentPage, int totalPages) {
         System.out.println("--- All Appointments (Page " + currentPage + " of " + totalPages + ") ---");
         int pageSize = 10;
@@ -181,6 +222,9 @@ public class UIManager {
         System.out.println();
     }
 
+    /**
+     * Displays the menu options for viewing appointments.
+     */
     private void displayViewMenu() {
         System.out.println("Menu Options:");
         System.out.println("P - Previous page");
@@ -190,6 +234,9 @@ public class UIManager {
         System.out.print("Enter your choice: ");
     }
 
+    /**
+     * Allows the user to view appointments by category.
+     */
     private void viewAppointmentsByCategory() {
         clearConsole();
         System.out.println("--- View Appointments by Category ---");
@@ -212,6 +259,9 @@ public class UIManager {
         displayAppointmentsPaginated(filteredAppointments, false);
     }
 
+    /**
+     * Allows the user to view appointments for a specific day.
+     */
     private void viewAppointmentsForDay() {
         clearConsole();
         System.out.println("--- Appointments for a Specific Day ---");
@@ -220,6 +270,11 @@ public class UIManager {
         displayAppointmentsPaginated(appointments, false);
     }
 
+    /**
+     * Gets a date input from the user.
+     * @param prompt The prompt to display to the user.
+     * @return The entered date as a LocalDateTime.
+     */
     private LocalDateTime getDateInput(String prompt) {
         while (true) {
             System.out.print(prompt + " (yyyy-MM-dd): ");
@@ -232,18 +287,21 @@ public class UIManager {
         }
     }
 
+    /**
+     * Allows the user to add a new appointment with input validation.
+     */
     private void addNewAppointment() {
         clearConsole();
         System.out.println("--- Add New Appointment ---");
         System.out.println("(Enter 'cancel' at any prompt to abort)");
 
-        LocalDate date = getDateInputWithCancel("Enter date");
+        LocalDate date = getValidDateInput("Enter date");
         if (date == null) return;
 
-        LocalTime startTime = getTimeInputWithCancel("Enter start time");
+        LocalTime startTime = getValidTimeInput("Enter start time", date, null);
         if (startTime == null) return;
 
-        LocalTime endTime = getTimeInputWithCancel("Enter end time");
+        LocalTime endTime = getValidTimeInput("Enter end time", date, startTime);
         if (endTime == null) return;
 
         System.out.print("Enter description: ");
@@ -266,7 +324,12 @@ public class UIManager {
         scanner.nextLine();
     }
 
-    private LocalDate getDateInputWithCancel(String prompt) {
+    /**
+     * Gets a valid date input from the user, ensuring it's not in the past.
+     * @param prompt The prompt to display to the user.
+     * @return The entered date as a LocalDate, or null if the user cancels.
+     */
+    private LocalDate getValidDateInput(String prompt) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         while (true) {
             System.out.print(prompt + " (yyyy-MM-dd): ");
@@ -275,15 +338,27 @@ public class UIManager {
                 return null;
             }
             try {
-                return LocalDate.parse(input, dateFormatter);
+                LocalDate date = LocalDate.parse(input, dateFormatter);
+                if (date.isBefore(LocalDate.now())) {
+                    System.out.println("Error: Date cannot be in the past. Please enter a future or today's date.");
+                } else {
+                    return date;
+                }
             } catch (DateTimeParseException e) {
                 System.out.println("Invalid date format. Please use yyyy-MM-dd.");
             }
         }
     }
 
-    private LocalTime getTimeInputWithCancel(String prompt) {
+    /**
+     * Gets a valid time input from the user, ensuring it's after the start time if it's an end time.
+     * @param prompt The prompt to display to the user.
+     * @param startTime The start time to compare against, or null if this is a start time input.
+     * @return The entered time as a LocalTime, or null if the user cancels.
+     */
+    private LocalTime getValidTimeInput(String prompt, LocalDate date, LocalTime startTime) {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalDateTime now = LocalDateTime.now();
         while (true) {
             System.out.print(prompt + " (HH:mm): ");
             String input = scanner.nextLine();
@@ -291,13 +366,25 @@ public class UIManager {
                 return null;
             }
             try {
-                return LocalTime.parse(input, timeFormatter);
+                LocalTime time = LocalTime.parse(input, timeFormatter);
+                LocalDateTime dateTime = LocalDateTime.of(date, time);
+                if (dateTime.isBefore(now)) {
+                    System.out.println("Error: Time cannot be in the past. Please enter a future time.");
+                } else if (startTime != null && time.isBefore(startTime)) {
+                    System.out.println("Error: End time must be after the start time.");
+                } else {
+                    return time;
+                }
             } catch (DateTimeParseException e) {
                 System.out.println("Invalid time format. Please use HH:mm.");
             }
         }
     }
 
+    /**
+     * Gets a category input from the user.
+     * @return The selected category code, or null if the user quits to the main menu.
+     */
     private String getCategoryInput() {
         while (true) {
             System.out.println("Select a category:");
@@ -318,7 +405,9 @@ public class UIManager {
             }
         }
     }
-
+    /**
+     * Allows the user to delete an appointment.
+     */
     private void deleteAppointment() {
         List<Appointment> appointments = appointmentManager.getAllAppointments();
         if (appointments.isEmpty()) {
@@ -331,9 +420,12 @@ public class UIManager {
         displayAppointmentsPaginated(appointments, true);
     }
 
+    /**
+     * Performs the deletion of an appointment based on user input.
+     */
     private void performDelete() {
         System.out.print("Enter appointment code to delete: ");
-        String code = scanner.nextLine();
+        String code = scanner.nextLine().trim(); // Trim any leading or trailing whitespace
         boolean deleted = appointmentManager.deleteAppointment(code);
         if (deleted) {
             System.out.println("Appointment deleted successfully.");
